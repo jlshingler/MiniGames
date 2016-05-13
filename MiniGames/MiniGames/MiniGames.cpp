@@ -44,6 +44,24 @@ void printBoard(string board[boardSize][boardSize]){
 	}
 }
 
+//display board in console
+void printBoards(string board1[boardSize][boardSize], string board2[boardSize][boardSize]){
+	cout << "|-|-|-|-|-|-|-|-|-|-|-|   |-|-|-|-|-|-|-|-|-|-|-|" << endl;
+	cout << "| |A|B|C|D|E|F|G|H|I|J|   | |A|B|C|D|E|F|G|H|I|J|" << endl;
+	cout << "|-|-|-|-|-|-|-|-|-|-|-|   |-|-|-|-|-|-|-|-|-|-|-|" << endl;
+	for (int i = 0; i < boardSize; i++){
+		cout << "|" << i << "|";
+		for (int j = 0; j < boardSize; j++){
+			cout << "" + board1[i][j] + "|";
+		}
+		cout << "   |" << i << "|";
+		for (int j = 0; j < boardSize; j++){
+			cout << "" + board2[i][j] + "|";
+		}
+		cout << endl << "|-|-|-|-|-|-|-|-|-|-|-|   |-|-|-|-|-|-|-|-|-|-|-|" << endl;
+	}
+}
+
 //clear board
 void resetBoard(string board[boardSize][boardSize]){
 	for (int i = 0; i < boardSize; i++){
@@ -53,8 +71,26 @@ void resetBoard(string board[boardSize][boardSize]){
 	}
 }
 
+// translate ship type char to string of ship name
+string getShipName(char type){
+	switch (type){
+		case 'C':
+			return "Aircraft Carrier";
+		case 'B':
+			return "Battleship";
+		case 'S':
+			return "Submarine";
+		case 'D':
+			return "Destroyer";
+		case 'P':
+			return "Patrol Boat";
+		default:
+			return "Invalid Ship Type";
+	}
+}
+
 //get column number based on letter input
-int getColumn(string letter){
+int getColumnNum(string letter){
 	if (letter.length() == 1){
 		letter[0] = toupper(letter[0]); //capitalize. if the string is longer than 1 than it won't match anyways.
 		string columns[] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
@@ -74,7 +110,7 @@ int getCol(){
 	while (true){
 		cout << "Which column? ";
 		getline(cin, input);
-		col = getColumn(input);
+		col = getColumnNum(input);
 		if (col < 0){ //getColumn returns -1 if no match found
 			cout << "Invalid input! Try again." << endl;
 		}
@@ -121,8 +157,25 @@ bool positionFree(int& horizontal, string board[boardSize][boardSize], int& row,
 	return true;
 }
 
+// get user input for the row they wish to attack
+int getOrientation(){
+	string input;
+	while (true){
+		cout << "Place ship horizontally or vertically? (h/v) ";
+		getline(cin, input);
+		if (input == "h" || input == "H"){
+			return 1;
+		}
+		else if (input == "v" || input == "V"){
+			return 0;
+		}
+		cout << "Invalid input! Try again." << endl;
+	}
+	return 1; //default horizontal
+}
+
 //go through each ship and place it on the board, ensuring two ships don't overlap
-void setUpBoard(string board[boardSize][boardSize], ship ships[numShips]){
+void setUpEnemyBoard(string board[boardSize][boardSize], ship ships[numShips]){
 	for (int i = 0; i < numShips; i++){
 		int length = ships[i].length;
 		while (true){ // loop in case multiple attempts needed
@@ -151,11 +204,65 @@ void setUpBoard(string board[boardSize][boardSize], ship ships[numShips]){
 	}
 }
 
-void setUpGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardSize][boardSize]){
+//go through each ship and place it on the board, ensuring two ships don't overlap
+void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
+	for (int i = 0; i < numShips; i++){
+		printBoard(board);
+		int length = ships[i].length;
+		string shipName = getShipName(ships[i].type);
+		while (true){ // loop in case multiple attempts needed
+			cout << "Setting up " << shipName << " (length " << length << ")" << endl;
+			int horizontal = getOrientation();
+			int col = getCol();
+			int row = getRow(); 
+			bool confirm = true;
+			if (horizontal && (col + length < boardSize)){
+				//row static, col changes
+				for (int j = col; j < col + length; j++){
+					confirm = (board[row][j] == " "); //confirm space is empty
+					if (!confirm){
+						break; //don't let confirm = false be overwritten if it occurs
+					}
+				}
+			}
+			else if (row + length < boardSize){
+				//col static, row changes
+				for (int j = row; j < row + length; j++){
+					confirm = (board[j][row] == " "); //confirm space is empty
+					if (!confirm){
+						break; //don't let confirm = false be overwritten if it occurs
+					}
+				}
+			}
+			else{
+				confirm = false;
+			}
+			
+			if (confirm){ //set position on board
+				if (horizontal){
+					for (int j = col; j < col + length; j++){
+						board[row][j] = ships[i].type;
+					}
+				}
+				else{
+					for (int j = row; j < row + length; j++){
+						board[j][col] = ships[i].type;
+					}
+				}
+				break;
+			}
+			else{
+				cout << "Sorry, that's not a legal spot for the ship. Please try again." << endl;
+			}
+		}
+	}
+}
+
+void setUpGame(string enemyBoard[boardSize][boardSize], string playerBoard[boardSize][boardSize]){
 	string input;
 	ship ships[numShips] = { ship(5, 'C'), ship(4, 'B'), ship(3, 'S'), ship(3, 'D'), ship(2, 'P') }; //yes i realize this will throw an error if numShips is changed
 	while (true){ //generate enemy board loop
-		setUpBoard(enemyBoard, ships);
+		setUpEnemyBoard(enemyBoard, ships);
 		printBoard(enemyBoard); //debug print
 		cout << "Try another board?" << endl;
 		getline(cin, input);
@@ -166,6 +273,8 @@ void setUpGame(string attackBoard[boardSize][boardSize], string enemyBoard[board
 			break;
 		}
 	}
+	setUpPlayerBoard(playerBoard, ships);
+	printBoards(enemyBoard, playerBoard);
 }
 
 // allow user to attack until they either run out of moves or destroy all ships
@@ -215,7 +324,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			resetBoard(enemyBoard);
 			string attackBoard[boardSize][boardSize];
 			resetBoard(attackBoard);
-			setUpGame(attackBoard, enemyBoard);
+			string playerBoard[boardSize][boardSize];
+			resetBoard(playerBoard);
+			setUpGame(enemyBoard, playerBoard);
 			cout << "Time to play!" << endl;
 			playGame(attackBoard, enemyBoard);
 			cout << "Would you like to play again?" << endl;
