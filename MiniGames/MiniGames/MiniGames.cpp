@@ -277,15 +277,37 @@ void setUpGame(string enemyBoard[boardSize][boardSize], string playerBoard[board
 	printBoards(enemyBoard, playerBoard);
 }
 
+// AI attack. Return true if hit.
+bool enemyAttack(string board[boardSize][boardSize]){
+	while (true){
+		int row = random(0, 9);
+		int col = random(0, 9);
+		if (board[row][col] == "X" || board[row][col] == "O"){
+			// this spot has already been attacked. ignore.
+		}
+		else if (board[row][col] == " "){
+			// miss. update.
+			board[row][col] = "O";
+			return false;
+		}
+		else { 
+			// hit. update.
+			board[row][col] = "X";
+			return true;
+		}
+	}
+	return false;
+}
+
 // allow user to attack until they either run out of moves or destroy all ships
-void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardSize][boardSize]){
+void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardSize][boardSize], string playerBoard[boardSize][boardSize]){
 	string input;
-	int maxMoves = 50;
-	int moves = 0;
 	int maxHits = 17; // this also needs updating if the ships change
 	int hits = 0;
+	int AI_hits = 0;
+	string winner = "";
 	while (true){ //play loop
-		printBoard(attackBoard);
+		printBoards(attackBoard, playerBoard);
 		cout << "Your move!" << endl;
 		int col = getCol();
 		int row = getRow();
@@ -294,22 +316,27 @@ void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardS
 				attackBoard[row][col] = "X";
 				hits += 1;
 				if (hits == maxHits){
+					winner = "Player";
 					break;
 				}
 			}
 			else{
 				attackBoard[row][col] = "O";
 			}
-			moves += 1;
-			if (moves == maxMoves){
-				cout << "Sorry! You're out of moves! Game Over. :(" << endl;
-				break;
-			}
 		}
 		else{
 			cout << "You've already tried that spot!" << endl;
 		}
+		bool enemyHit = enemyAttack(playerBoard);
+		if (enemyHit){
+			AI_hits += 1;
+			if (AI_hits == maxHits){
+				winner = "AI";
+				break;
+			}
+		}
 	}
+	cout << "Game Over! " << winner << " Wins!";
 }
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -328,7 +355,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			resetBoard(playerBoard);
 			setUpGame(enemyBoard, playerBoard);
 			cout << "Time to play!" << endl;
-			playGame(attackBoard, enemyBoard);
+			playGame(attackBoard, enemyBoard, playerBoard);
 			cout << "Would you like to play again?" << endl;
 			getline(cin, input);
 		}
