@@ -9,7 +9,7 @@ using namespace std;
 #define boardSize 10
 #define numShips 5
 
-class ship{ //simple class to set up the ships for the game
+class ship{ // simple class to set up the ships for the game
 public:
 	int length;
 	char type;
@@ -20,7 +20,7 @@ public:
 	}
 };
 
-//random integer value within given range
+// random integer value within given range
 int random(int min, int max){
 	if (min > max){ // make sure min/max aren't switched
 		int temp = min;
@@ -30,7 +30,7 @@ int random(int min, int max){
 	return(min + (rand() % (max - min + 1)));
 }
 
-//display board in console
+// display board in console
 void printBoard(string board[boardSize][boardSize]){
 	cout << "|---|---|---|---|---|---|---|---|---|---|---|" << endl;
 	cout << "|   | A | B | C | D | E | F | G | H | I | J |" << endl;
@@ -44,25 +44,27 @@ void printBoard(string board[boardSize][boardSize]){
 	}
 }
 
-//display board in console
+// display both player and enemy boards in console
 void printBoards(string board1[boardSize][boardSize], string board2[boardSize][boardSize]){
-	cout << "|-|-|-|-|-|-|-|-|-|-|-|   |-|-|-|-|-|-|-|-|-|-|-|" << endl;
-	cout << "| |A|B|C|D|E|F|G|H|I|J|   | |A|B|C|D|E|F|G|H|I|J|" << endl;
-	cout << "|-|-|-|-|-|-|-|-|-|-|-|   |-|-|-|-|-|-|-|-|-|-|-|" << endl;
+	cout << "|---|---|---|---|---|---|---|---|---|---|---|   |---|---|---|---|---|---|---|---|---|---|---|" << endl;
+	cout << "|                Enemy Board                |   |               Player  Board               |" << endl;
+	cout << "|---|---|---|---|---|---|---|---|---|---|---|   |---|---|---|---|---|---|---|---|---|---|---|" << endl;
+	cout << "|   | A | B | C | D | E | F | G | H | I | J |   |   | A | B | C | D | E | F | G | H | I | J |" << endl;
+	cout << "|---|---|---|---|---|---|---|---|---|---|---|   |---|---|---|---|---|---|---|---|---|---|---|" << endl;
 	for (int i = 0; i < boardSize; i++){
-		cout << "|" << i << "|";
+		cout << "| " << i << " |";
 		for (int j = 0; j < boardSize; j++){
-			cout << "" + board1[i][j] + "|";
+			cout << " " + board1[i][j] + " |";
 		}
-		cout << "   |" << i << "|";
+		cout << "   | " << i << " |";
 		for (int j = 0; j < boardSize; j++){
-			cout << "" + board2[i][j] + "|";
+			cout << " " + board2[i][j] + " |";
 		}
-		cout << endl << "|-|-|-|-|-|-|-|-|-|-|-|   |-|-|-|-|-|-|-|-|-|-|-|" << endl;
+		cout << endl << "|---|---|---|---|---|---|---|---|---|---|---|   |---|---|---|---|---|---|---|---|---|---|---|" << endl;
 	}
 }
 
-//clear board
+// clear board
 void resetBoard(string board[boardSize][boardSize]){
 	for (int i = 0; i < boardSize; i++){
 		for (int j = 0; j < boardSize; j++){
@@ -89,10 +91,10 @@ string getShipName(char type){
 	}
 }
 
-//get column number based on letter input
+// get column number based on letter input
 int getColumnNum(string letter){
 	if (letter.length() == 1){
-		letter[0] = toupper(letter[0]); //capitalize. if the string is longer than 1 than it won't match anyways.
+		letter[0] = toupper(letter[0]); // capitalize. if the string is longer than 1 than it won't match anyways.
 		string columns[] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
 		for (int i = 0; i < boardSize; i++){
 			if (columns[i] == letter){
@@ -111,7 +113,7 @@ int getCol(){
 		cout << "Which column? ";
 		getline(cin, input);
 		col = getColumnNum(input);
-		if (col < 0){ //getColumn returns -1 if no match found
+		if (col < 0){ // getColumn returns -1 if no match found
 			cout << "Invalid input! Try again." << endl;
 		}
 		else{
@@ -142,7 +144,7 @@ int getRow(){
 	return row;
 }
 
-//check if position on board is free for the ship
+// check if position on board is free for the ship
 bool positionFree(int& horizontal, string board[boardSize][boardSize], int& row, int& col){
 	if (horizontal){
 		if (board[row][col] != " "){
@@ -171,22 +173,22 @@ int getOrientation(){
 		}
 		cout << "Invalid input! Try again." << endl;
 	}
-	return 1; //default horizontal
+	return 1; // default horizontal
 }
 
-//go through each ship and place it on the board, ensuring two ships don't overlap
+// go through each ship and place it on the board, ensuring two ships don't overlap
 void setUpEnemyBoard(string board[boardSize][boardSize], ship ships[numShips]){
 	for (int i = 0; i < numShips; i++){
 		int length = ships[i].length;
 		while (true){ // loop in case multiple attempts needed
-			int horizontal = rand() % 2; //randomize orientation. 0 = horizontal, 1 = vertical.
-			int row = random(0, 9); //could be column depending on orientation (in this case we'll switch row/col)
-			int col = random(0, (9 - length)); //where in the row/column we start. can't go past the end of the array.
+			int horizontal = rand() % 2; // randomize orientation. 0 = horizontal, 1 = vertical.
+			int row = random(0, 9); // could be column depending on orientation (in this case we'll switch row/col)
+			int col = random(0, (9 - length)); // where in the row/column we start. can't go past the end of the array.
 			bool confirm = true;
 			for (int j = col; j < col + length; j++){
 				confirm = positionFree(horizontal, board, row, j);
 				if (!confirm){
-					break; //don't let confirm = false be overwritten if it occurs
+					break; // don't let confirm = false be overwritten if it occurs
 				}
 			}
 			if (confirm){ //set position on board
@@ -204,7 +206,7 @@ void setUpEnemyBoard(string board[boardSize][boardSize], ship ships[numShips]){
 	}
 }
 
-//go through each ship and place it on the board, ensuring two ships don't overlap
+// go through each ship and place it on the board, ensuring two ships don't overlap
 void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 	for (int i = 0; i < numShips; i++){
 		printBoard(board);
@@ -217,20 +219,20 @@ void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 			int row = getRow(); 
 			bool confirm = true;
 			if (horizontal && (col + length < boardSize)){
-				//row static, col changes
+				// row static, col changes
 				for (int j = col; j < col + length; j++){
-					confirm = (board[row][j] == " "); //confirm space is empty
+					confirm = (board[row][j] == " "); // confirm space is empty
 					if (!confirm){
-						break; //don't let confirm = false be overwritten if it occurs
+						break; // don't let confirm = false be overwritten if it occurs
 					}
 				}
 			}
 			else if (row + length < boardSize){
-				//col static, row changes
+				// col static, row changes
 				for (int j = row; j < row + length; j++){
-					confirm = (board[j][row] == " "); //confirm space is empty
+					confirm = (board[j][row] == " "); // confirm space is empty
 					if (!confirm){
-						break; //don't let confirm = false be overwritten if it occurs
+						break; // don't let confirm = false be overwritten if it occurs
 					}
 				}
 			}
@@ -238,7 +240,7 @@ void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 				confirm = false;
 			}
 			
-			if (confirm){ //set position on board
+			if (confirm){ // set position on board
 				if (horizontal){
 					for (int j = col; j < col + length; j++){
 						board[row][j] = ships[i].type;
@@ -251,7 +253,7 @@ void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 				}
 				break;
 			}
-			else{
+			else{ // this is triggering when it shouldn't. fix it.
 				cout << "Sorry, that's not a legal spot for the ship. Please try again." << endl;
 			}
 		}
@@ -260,10 +262,10 @@ void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 
 void setUpGame(string enemyBoard[boardSize][boardSize], string playerBoard[boardSize][boardSize]){
 	string input;
-	ship ships[numShips] = { ship(5, 'C'), ship(4, 'B'), ship(3, 'S'), ship(3, 'D'), ship(2, 'P') }; //yes i realize this will throw an error if numShips is changed
-	while (true){ //generate enemy board loop
+	ship ships[numShips] = { ship(5, 'C'), ship(4, 'B'), ship(3, 'S'), ship(3, 'D'), ship(2, 'P') }; // yes i realize this will throw an error if numShips is changed
+	while (true){ // generate enemy board loop
 		setUpEnemyBoard(enemyBoard, ships);
-		printBoard(enemyBoard); //debug print
+		printBoard(enemyBoard); // debug print
 		cout << "Try another board?" << endl;
 		getline(cin, input);
 		if (input == "y"){
@@ -277,11 +279,117 @@ void setUpGame(string enemyBoard[boardSize][boardSize], string playerBoard[board
 	printBoards(enemyBoard, playerBoard);
 }
 
+// setup game for testing (AI playing against itself. Don't want to worry about setting up board manually.)
+void setUpGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boardSize][boardSize]){
+	string input;
+	ship ships[numShips] = { ship(5, 'C'), ship(4, 'B'), ship(3, 'S'), ship(3, 'D'), ship(2, 'P') }; // yes i realize this will throw an error if numShips is changed
+	while (true){ // generate enemy board loop
+		setUpEnemyBoard(enemyBoard, ships);
+		printBoard(enemyBoard); // debug print
+		cout << "Try another board?" << endl;
+		getline(cin, input);
+		if (input == "y"){
+			resetBoard(enemyBoard);
+		}
+		else{
+			break;
+		}
+	}
+	while (true){ // generate fake player board loop
+		setUpEnemyBoard(playerBoard, ships);
+		printBoard(playerBoard); // debug print
+		cout << "Try another board?" << endl;
+		getline(cin, input);
+		if (input == "y"){
+			resetBoard(playerBoard);
+		}
+		else{
+			break;
+		}
+	}
+	printBoards(enemyBoard, playerBoard);
+}
+
 // AI attack. Return true if hit.
-bool enemyAttack(string board[boardSize][boardSize]){
-	while (true){
-		int row = random(0, 9);
-		int col = random(0, 9);
+bool enemyAttack(string board[boardSize][boardSize]){ // so much repeated code ugh test for now then clean up
+	// check for educated move first, if that doesn't work try random.
+	// this is second stage of intelligence it tries all surrounding spots before moving on. 
+	// next will be recognizing multiple hits in a row and what to do with them
+	for (int r = 0; r < boardSize; r++){ //okay first step is to get the "lay of the land" (remembering AI can't "see" player ships)
+		for (int c = 0; c < boardSize; c++){
+			if (board[r][c] == "X"){ //we have a hit! check surrounding spaces
+				// if r > 0, check left [r - 1, c]
+				if (r > 0){
+					if (board[r - 1][c] == "X" || board[r - 1][c] == "O"){
+						// this spot has already been attacked. ignore.
+					}
+					else if (board[r - 1][c] == " "){
+						// miss. update.
+						board[r - 1][c] = "O";
+						return false;
+					}
+					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
+						// hit. update.
+						board[r - 1][c] = "X";
+						return true;
+					}
+				}
+				// if r < boardSize - 1, check right [r + 1, c]
+				if (r < boardSize - 1){
+					if (board[r + 1][c] == "X" || board[r + 1][c] == "O"){
+						// this spot has already been attacked. ignore.
+					}
+					else if (board[r + 1][c] == " "){
+						// miss. update.
+						board[r + 1][c] = "O";
+						return false;
+					}
+					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
+						// hit. update.
+						board[r + 1][c] = "X";
+						return true;
+					}
+				}
+				// if c > 0, check down [r, c - 1]
+				if (c > 0){
+					if (board[r][c - 1] == "X" || board[r][c - 1] == "O"){
+						// this spot has already been attacked. ignore.
+					}
+					else if (board[r][c - 1] == " "){
+						// miss. update.
+						board[r][c - 1] = "O";
+						return false;
+					}
+					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
+						// hit. update.
+						board[r][c - 1] = "X";
+						return true;
+					}
+				}
+				// if c < boardSize - 1, check up [r, c + 1]
+				if (c < boardSize - 1){
+					if (board[r][c + 1] == "X" || board[r][c + 1] == "O"){
+						// this spot has already been attacked. ignore.
+					}
+					else if (board[r][c + 1] == " "){
+						// miss. update.
+						board[r][c + 1] = "O";
+						return false;
+					}
+					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
+						// hit. update.
+						board[r][c + 1] = "X";
+						return true;
+					}
+				}
+
+			}
+		}
+	}
+	// if we're still here then no intelligent guesses left
+	while (true){ 
+		int row = random(0, boardSize - 1);
+		int col = random(0, boardSize - 1);
 		if (board[row][col] == "X" || board[row][col] == "O"){
 			// this spot has already been attacked. ignore.
 		}
@@ -290,7 +398,7 @@ bool enemyAttack(string board[boardSize][boardSize]){
 			board[row][col] = "O";
 			return false;
 		}
-		else { 
+		else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
 			// hit. update.
 			board[row][col] = "X";
 			return true;
@@ -306,11 +414,12 @@ void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardS
 	int hits = 0;
 	int AI_hits = 0;
 	string winner = "";
-	while (true){ //play loop
+	while (true){ // play loop
 		printBoards(attackBoard, playerBoard);
 		cout << "Your move!" << endl;
 		int col = getCol();
 		int row = getRow();
+		bool playerChoseValid = true; // if player accidentally chooses somewhere they've already attacked, want to give them another chance without AI getting an extra move.
 		if (attackBoard[row][col] == " "){
 			if (enemyBoard[row][col] != " "){
 				attackBoard[row][col] = "X";
@@ -325,7 +434,40 @@ void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardS
 			}
 		}
 		else{
-			cout << "You've already tried that spot!" << endl;
+			cout << "You've already tried that spot! Try again." << endl; 
+			playerChoseValid = false;
+		}
+		if (playerChoseValid){
+			bool enemyHit = enemyAttack(playerBoard);
+			if (enemyHit){
+				AI_hits += 1;
+				if (AI_hits == maxHits){
+					winner = "AI";
+					break;
+				}
+			}
+		}
+	}
+	cout << "Game Over! " << winner << " Wins!" << endl;
+}
+
+// have AI play against another AI (well, same AI but with a different board to attack) for testing purposes
+void playGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boardSize][boardSize]){
+	string input;
+	int maxHits = 17; // this also needs updating if the ships change
+	int hits = 0;
+	int AI_hits = 0;
+	string winner = "";
+	while (true){ // play loop
+		cout << endl;
+		printBoards(enemyBoard, playerBoard);
+		bool fakePlayerHit = enemyAttack(enemyBoard);
+		if (fakePlayerHit){
+			hits += 1;
+			if (hits == maxHits){
+				winner = "Player";
+				break;
+			}
 		}
 		bool enemyHit = enemyAttack(playerBoard);
 		if (enemyHit){
@@ -336,28 +478,40 @@ void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardS
 			}
 		}
 	}
-	cout << "Game Over! " << winner << " Wins!";
+	cout << "Game Over! " << winner << " Wins!" << endl;
 }
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	cout << "Would you like to play? (y/n)" << endl;
 	string input;
 	getline(cin, input);
-	while (true){ //main game loop
+	while (true){ // main game loop
 		if (input == "y"){
 			srand(time(NULL)); // randomize the seed so we don't get the same board every time
-			string enemyBoard[boardSize][boardSize];
+			string enemyBoard[boardSize][boardSize]; 
 			resetBoard(enemyBoard);
-			string attackBoard[boardSize][boardSize];
+			string attackBoard[boardSize][boardSize]; // this board is for printing to the user (so user won't see the enemy ship locations)
 			resetBoard(attackBoard);
 			string playerBoard[boardSize][boardSize];
 			resetBoard(playerBoard);
-			setUpGame(enemyBoard, playerBoard);
-			cout << "Time to play!" << endl;
-			playGame(attackBoard, enemyBoard, playerBoard);
-			cout << "Would you like to play again?" << endl;
+			cout << "Watch or Play (Default is Watch)? (w/p)" << endl;
 			getline(cin, input);
+			if (input == "p"){
+				setUpGame(enemyBoard, playerBoard);
+				cout << "Time to play!" << endl;
+				playGame(attackBoard, enemyBoard, playerBoard);
+				cout << "Would you like to play again?" << endl;
+				getline(cin, input);
+			}
+			else{
+				setUpGameAI(enemyBoard, playerBoard);
+				cout << "Time to play!" << endl;
+				playGameAI(enemyBoard, playerBoard);
+				cout << "Would you like to play again?" << endl;
+				getline(cin, input);
+			}
 		}
 		else {
 			break;
