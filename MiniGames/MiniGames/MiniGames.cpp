@@ -310,79 +310,56 @@ void setUpGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boa
 	printBoards(enemyBoard, playerBoard);
 }
 
+// check for hit on board
+char checkHit(int r, int c, string board[boardSize][boardSize]){
+	if (board[r][c] == "X" || board[r][c] == "O"){
+		// this spot has already been attacked. ignore.
+		return 'I'; 
+	}
+	else if (board[r][c] == " "){
+		// miss. update.
+		board[r][c] = "O";
+		return 'O'; 
+	}
+	else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
+		// hit. update.
+		board[r][c] = "X";
+		return 'X';
+	}
+}
+
 // AI attack. Return true if hit.
 bool enemyAttack(string board[boardSize][boardSize]){ // so much repeated code ugh test for now then clean up
 	// check for educated move first, if that doesn't work try random.
 	// this is second stage of intelligence it tries all surrounding spots before moving on. 
 	// next will be recognizing multiple hits in a row and what to do with them
+	char hit = ' ';
 	for (int r = 0; r < boardSize; r++){ //okay first step is to get the "lay of the land" (remembering AI can't "see" player ships)
 		for (int c = 0; c < boardSize; c++){
 			if (board[r][c] == "X"){ //we have a hit! check surrounding spaces
 				// if r > 0, check left [r - 1, c]
 				if (r > 0){
-					if (board[r - 1][c] == "X" || board[r - 1][c] == "O"){
-						// this spot has already been attacked. ignore.
-					}
-					else if (board[r - 1][c] == " "){
-						// miss. update.
-						board[r - 1][c] = "O";
-						return false;
-					}
-					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
-						// hit. update.
-						board[r - 1][c] = "X";
-						return true;
-					}
+					hit = checkHit(r - 1, c, board);
 				}
 				// if r < boardSize - 1, check right [r + 1, c]
-				if (r < boardSize - 1){
-					if (board[r + 1][c] == "X" || board[r + 1][c] == "O"){
-						// this spot has already been attacked. ignore.
-					}
-					else if (board[r + 1][c] == " "){
-						// miss. update.
-						board[r + 1][c] = "O";
-						return false;
-					}
-					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
-						// hit. update.
-						board[r + 1][c] = "X";
-						return true;
-					}
+				if (r < boardSize - 1 && (hit == ' ' || hit == 'I')){
+					hit = checkHit(r + 1, c, board);
 				}
 				// if c > 0, check down [r, c - 1]
-				if (c > 0){
-					if (board[r][c - 1] == "X" || board[r][c - 1] == "O"){
-						// this spot has already been attacked. ignore.
-					}
-					else if (board[r][c - 1] == " "){
-						// miss. update.
-						board[r][c - 1] = "O";
-						return false;
-					}
-					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
-						// hit. update.
-						board[r][c - 1] = "X";
-						return true;
-					}
+				if (c > 0 && (hit == ' ' || hit == 'I')){
+					hit = checkHit(r, c - 1, board);
 				}
 				// if c < boardSize - 1, check up [r, c + 1]
-				if (c < boardSize - 1){
-					if (board[r][c + 1] == "X" || board[r][c + 1] == "O"){
-						// this spot has already been attacked. ignore.
-					}
-					else if (board[r][c + 1] == " "){
-						// miss. update.
-						board[r][c + 1] = "O";
-						return false;
-					}
-					else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
-						// hit. update.
-						board[r][c + 1] = "X";
-						return true;
-					}
+				if (c < boardSize - 1 && (hit == ' ' || hit == 'I')){
+					hit = checkHit(r, c + 1, board);
 				}
 
+				if (hit == 'X'){
+					return true;
+				}
+				if (hit == 'O'){
+					return false;
+				}
 			}
 		}
 	}
@@ -390,18 +367,12 @@ bool enemyAttack(string board[boardSize][boardSize]){ // so much repeated code u
 	while (true){ 
 		int row = random(0, boardSize - 1);
 		int col = random(0, boardSize - 1);
-		if (board[row][col] == "X" || board[row][col] == "O"){
-			// this spot has already been attacked. ignore.
-		}
-		else if (board[row][col] == " "){
-			// miss. update.
-			board[row][col] = "O";
-			return false;
-		}
-		else { // space occupied by a letter representing a boat type. thus, a hit. yay! (or boo, if you're the player i suppose)
-			// hit. update.
-			board[row][col] = "X";
+		hit = checkHit(row, col, board);
+		if (hit == 'X'){
 			return true;
+		}
+		if (hit == 'O'){
+			return false;
 		}
 	}
 	return false;
