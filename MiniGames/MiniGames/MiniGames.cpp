@@ -1,24 +1,9 @@
-// main.cpp : Defines the entry point for the console application.
+// MiniGames.cpp
 //
 
 #include "stdafx.h"
-#include <string>
-#include <time.h>
-#include <iostream>
+#include "MiniGames.h"
 using namespace std;
-#define boardSize 10
-#define numShips 5
-
-class ship{ // simple class to set up the ships for the game
-public:
-	int length;
-	char type;
-
-	ship(int l, char t){
-		length = l;
-		type = t;
-	}
-};
 
 // random integer value within given range
 int random(int min, int max){
@@ -73,38 +58,6 @@ void resetBoard(string board[boardSize][boardSize]){
 	}
 }
 
-// translate ship type char to string of ship name
-string getShipName(char type){
-	switch (type){
-		case 'C':
-			return "Aircraft Carrier";
-		case 'B':
-			return "Battleship";
-		case 'S':
-			return "Submarine";
-		case 'D':
-			return "Destroyer";
-		case 'P':
-			return "Patrol Boat";
-		default:
-			return "Invalid Ship Type";
-	}
-}
-
-// get column number based on letter input
-int getColumnNum(string letter){
-	if (letter.length() == 1){
-		letter[0] = toupper(letter[0]); // capitalize. if the string is longer than 1 than it won't match anyways.
-		string columns[] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
-		for (int i = 0; i < boardSize; i++){
-			if (columns[i] == letter){
-				return i;
-			}
-		}
-	}
-	return -1;
-}
-
 // get user input for the column they wish to attack
 int getCol(){
 	string input;
@@ -144,7 +97,7 @@ int getRow(){
 	return row;
 }
 
-// check if position on board is free for the ship
+// check if position on board is free for the ship being placed
 bool positionFree(int& horizontal, string board[boardSize][boardSize], int& row, int& col){
 	if (horizontal){
 		if (board[row][col] != " "){
@@ -449,6 +402,7 @@ void playGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boar
 			}
 		}
 	}
+	printBoards(enemyBoard, playerBoard);
 	cout << "Game Over! " << winner << " Wins!" << endl;
 }
 
@@ -488,6 +442,5 @@ int _tmain(int argc, _TCHAR* argv[])
 			break;
 		}
 	}
-	cin.ignore();
 	return 0;
 }
