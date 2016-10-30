@@ -62,7 +62,8 @@ void resetBoard(string board[boardSize][boardSize]){
 int getCol(){
 	string input;
 	int col = -1;
-	while (true){
+	bool valid = false;
+	while (!valid){
 		cout << "Which column? ";
 		getline(cin, input);
 		col = getColumnNum(input);
@@ -70,7 +71,7 @@ int getCol(){
 			cout << "Invalid input! Try again." << endl;
 		}
 		else{
-			break;
+			valid = true;
 		}
 	}
 	return col;
@@ -80,19 +81,23 @@ int getCol(){
 int getRow(){
 	string input;
 	int row = -1;
-	while (true){
+	bool valid = false;
+	while (!valid){
 		cout << "Which row? ";
 		getline(cin, input);
 		try{
 			row = stoi(input);
-			if (0 <= row && row <= 9){
-				break;
-			}
 		}
 		catch (invalid_argument& e){
 			// user didn't enter an int
 		}
-		cout << "Invalid input! Try again." << endl;
+
+		if (0 <= row && row <= 9){
+			valid = true;
+		}
+		else{
+			cout << "Invalid input! Try again." << endl;
+		}
 	}
 	return row;
 }
@@ -115,13 +120,16 @@ bool positionFree(int& horizontal, string board[boardSize][boardSize], int& row,
 // get user input for the row they wish to attack
 int getOrientation(){
 	string input;
-	while (true){
+	bool valid = false;
+	while (!valid){
 		cout << "Place ship horizontally or vertically? (h/v) ";
 		getline(cin, input);
 		if (input == "h" || input == "H"){
+			valid = true;
 			return 1;
 		}
 		else if (input == "v" || input == "V"){
+			valid = true;
 			return 0;
 		}
 		cout << "Invalid input! Try again." << endl;
@@ -133,7 +141,8 @@ int getOrientation(){
 void setUpEnemyBoard(string board[boardSize][boardSize], ship ships[numShips]){
 	for (int i = 0; i < numShips; i++){
 		int length = ships[i].length;
-		while (true){ // loop in case multiple attempts needed
+		bool done = false;
+		while (!done){ // loop in case multiple attempts needed
 			int horizontal = rand() % 2; // randomize orientation. 0 = horizontal, 1 = vertical.
 			int row = random(0, 9); // could be column depending on orientation (in this case we'll switch row/col)
 			int col = random(0, (9 - length)); // where in the row/column we start. can't go past the end of the array.
@@ -153,7 +162,7 @@ void setUpEnemyBoard(string board[boardSize][boardSize], ship ships[numShips]){
 						board[j][row] = ships[i].type;
 					}
 				}
-				break;
+				done = true;
 			}
 		}
 	}
@@ -165,7 +174,8 @@ void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 		printBoard(board);
 		int length = ships[i].length;
 		string shipName = getShipName(ships[i].type);
-		while (true){ // loop in case multiple attempts needed
+		bool done = false;
+		while (!done){ // loop in case multiple attempts needed
 			cout << "Setting up " << shipName << " (length " << length << ")" << endl;
 			int horizontal = getOrientation();
 			int col = getCol();
@@ -204,7 +214,7 @@ void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 						board[j][col] = ships[i].type;
 					}
 				}
-				break;
+				done = true;
 			}
 			else{ // this is triggering when it shouldn't. fix it.
 				cout << "Sorry, that's not a legal spot for the ship. Please try again." << endl;
@@ -216,7 +226,8 @@ void setUpPlayerBoard(string board[boardSize][boardSize], ship ships[numShips]){
 void setUpGame(string enemyBoard[boardSize][boardSize], string playerBoard[boardSize][boardSize]){
 	string input;
 	ship ships[numShips] = { ship(5, 'C'), ship(4, 'B'), ship(3, 'S'), ship(3, 'D'), ship(2, 'P') }; // yes i realize this will throw an error if numShips is changed
-	while (true){ // generate enemy board loop
+	bool done = false;
+	while (!done){ // generate enemy board loop
 		setUpEnemyBoard(enemyBoard, ships);
 		printBoard(enemyBoard); // debug print
 		cout << "Try another board?" << endl;
@@ -225,7 +236,7 @@ void setUpGame(string enemyBoard[boardSize][boardSize], string playerBoard[board
 			resetBoard(enemyBoard);
 		}
 		else{
-			break;
+			done = true;
 		}
 	}
 	setUpPlayerBoard(playerBoard, ships);
@@ -236,7 +247,8 @@ void setUpGame(string enemyBoard[boardSize][boardSize], string playerBoard[board
 void setUpGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boardSize][boardSize]){
 	string input;
 	ship ships[numShips] = { ship(5, 'C'), ship(4, 'B'), ship(3, 'S'), ship(3, 'D'), ship(2, 'P') }; // yes i realize this will throw an error if numShips is changed
-	while (true){ // generate enemy board loop
+	bool done = false;
+	while (!done){ // generate enemy board loop
 		setUpEnemyBoard(enemyBoard, ships);
 		printBoard(enemyBoard); // debug print
 		cout << "Try another board?" << endl;
@@ -245,10 +257,12 @@ void setUpGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boa
 			resetBoard(enemyBoard);
 		}
 		else{
-			break;
+			done = true;
 		}
 	}
-	while (true){ // generate fake player board loop
+	//reset done for fake player
+	done = false;
+	while (!done){ // generate fake player board loop
 		setUpEnemyBoard(playerBoard, ships);
 		printBoard(playerBoard); // debug print
 		cout << "Try another board?" << endl;
@@ -257,7 +271,7 @@ void setUpGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boa
 			resetBoard(playerBoard);
 		}
 		else{
-			break;
+			done = true;
 		}
 	}
 	printBoards(enemyBoard, playerBoard);
@@ -317,18 +331,23 @@ bool enemyAttack(string board[boardSize][boardSize]){ // so much repeated code u
 		}
 	}
 	// if we're still here then no intelligent guesses left
-	while (true){ 
+	bool nohit = true;
+	while (nohit){
 		int row = random(0, boardSize - 1);
 		int col = random(0, boardSize - 1);
 		hit = checkHit(row, col, board);
-		if (hit == 'X'){
-			return true;
-		}
-		if (hit == 'O'){
-			return false;
+		if (hit == 'X' || hit == 'O'){
+			nohit = false;
 		}
 	}
-	return false;
+
+	if (hit == 'X'){
+		return true;
+	}
+	if (hit == 'O'){
+		return false;
+	}
+	return false; //should never hit this (should not exit while without X or O value) but just to be safe
 }
 
 // allow user to attack until they either run out of moves or destroy all ships
@@ -338,7 +357,8 @@ void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardS
 	int hits = 0;
 	int AI_hits = 0;
 	string winner = "";
-	while (true){ // play loop
+	bool playing = true;
+	while (playing){ // play loop
 		printBoards(attackBoard, playerBoard);
 		cout << "Your move!" << endl;
 		int col = getCol();
@@ -350,6 +370,7 @@ void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardS
 				hits += 1;
 				if (hits == maxHits){
 					winner = "Player";
+					playing = false;
 					break;
 				}
 			}
@@ -367,12 +388,15 @@ void playGame(string attackBoard[boardSize][boardSize], string enemyBoard[boardS
 				AI_hits += 1;
 				if (AI_hits == maxHits){
 					winner = "AI";
+					playing = false;
 					break;
 				}
 			}
+			cout << hits << " vs " << AI_hits << endl;
 		}
 	}
 	cout << "Game Over! " << winner << " Wins!" << endl;
+	printBoards(attackBoard, playerBoard);
 }
 
 // have AI play against another AI (well, same AI but with a different board to attack) for testing purposes
@@ -382,7 +406,8 @@ void playGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boar
 	int hits = 0;
 	int AI_hits = 0;
 	string winner = "";
-	while (true){ // play loop
+	bool playing = true;
+	while (playing){ // play loop
 		cout << endl;
 		printBoards(enemyBoard, playerBoard);
 		bool fakePlayerHit = enemyAttack(enemyBoard);
@@ -390,6 +415,7 @@ void playGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boar
 			hits += 1;
 			if (hits == maxHits){
 				winner = "Player";
+				playing = false;
 				break;
 			}
 		}
@@ -398,12 +424,14 @@ void playGameAI(string enemyBoard[boardSize][boardSize], string playerBoard[boar
 			AI_hits += 1;
 			if (AI_hits == maxHits){
 				winner = "AI";
+				playing = false;
 				break;
 			}
 		}
+		cout << hits << " vs " << AI_hits << endl;
 	}
-	printBoards(enemyBoard, playerBoard);
 	cout << "Game Over! " << winner << " Wins!" << endl;
+	printBoards(enemyBoard, playerBoard);
 }
 
 
@@ -412,7 +440,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << "Would you like to play? (y/n)" << endl;
 	string input;
 	getline(cin, input);
-	while (true){ // main game loop
+	bool continueGame = true;
+	while (continueGame){ // main game loop
 		if (input == "y"){
 			srand(time(NULL)); // randomize the seed so we don't get the same board every time
 			string enemyBoard[boardSize][boardSize]; 
@@ -439,7 +468,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 		}
 		else {
-			break;
+			continueGame = false;
 		}
 	}
 	return 0;
